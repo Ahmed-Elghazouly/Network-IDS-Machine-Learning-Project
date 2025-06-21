@@ -1,0 +1,16 @@
+# Ignore all dataset files and folders
+data/
+data/**
+
+# Ignore large files
+*.csv
+*.zip
+*.pkl
+
+# Jupyter and Python cache
+*.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Environment files
+.env
