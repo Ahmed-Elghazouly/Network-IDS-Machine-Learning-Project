@@ -119,8 +119,9 @@ This project is for educational and research purposes only.
 The dataset is the property of the Canadian Institute for Cybersecurity.
 
 🤝 Author
-Ahmed Elghazouly
-GitHub Profile
+**Ahmed Elghazouly**  
+[GitHub Profile](https://github.com/Ahmed-Elghazouly)
+
 
 🙌 Contributions
 If you'd like to contribute, feel free to fork this repo and open a pull request!
