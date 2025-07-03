@@ -1,174 +1,59 @@
-# 🛡️ Network Intrusion Detection System (IDS) Using Machine Learning
+# Machine Learning Intrusion Detection System (IDS)
 
-A machine learning-based Intrusion Detection System built on the CIC-IDS2017 dataset to classify network traffic as benign or malicious. This project demonstrates end-to-end ML implementation: preprocessing, feature engineering, training, evaluation, and model inference.
+## Project Overview
+This project documents the end-to-end process of building a robust Network Intrusion Detection System using machine learning. The primary goal is to accurately classify network traffic as either **benign** or **malicious**.
 
----
-
-## 📌 Project Highlights
-
-* ✅ Utilizes the **CIC-IDS2017** dataset
-* ✅ Preprocessing and cleaning of flow-based CSVs
-* ✅ Binary classification: **Benign vs Malicious**
-* ✅ Built using **Python**, **Scikit-learn**, **XGBoost**, and **LightGBM**
-* ✅ Modular Jupyter Notebooks: Preprocessing, Training, Evaluation, Inference
-* ✅ Ready to extend to multi-class or real-time detection
+More than just a classification task, this project tells a story about a critical real-world challenge: **data drift**. It follows a two-phase approach to first uncover this problem and then build a resilient model to solve it, demonstrating a practical understanding of deploying ML systems.
 
 ---
 
-## 📂 Project Structure
+## The Story: A Tale of Two Models
 
-```
-Network-IDS-Project/
-├── data/                         # 🚫 Not committed — contains raw dataset
-│   └── GeneratedLabelledFlows/
-├── models/                       # Saved trained models (.pkl)
-├── src/
-│   ├── preprocess.ipynb          # Data loading & cleaning
-│   ├── train.ipynb               # Model training & selection
-│   ├── evaluate.ipynb            # Evaluation and metrics reporting
-│   └── inference.ipynb         # Run inference using saved model
-├── requirements.txt              # Python dependencies
-├── .gitignore
-└── README.md
-```
+To simulate a realistic deployment lifecycle, the project was conducted in two phases.
+
+### Phase 1: The Initial Model & Uncovering Data Drift
+An initial set of models was trained on network data from Monday to Thursday and evaluated on a test set also from those days. The results were excellent, with the top model achieving over **98% accuracy**.
+
+However, when this model was used for inference on new, unseen data from Friday, its performance crashed:
+* **Accuracy dropped to ~70%**
+* **F1-Score for attacks fell to a mere 44%**
+* **Recall for attacks was only 28%**, meaning it missed almost 3 out of every 4 real attacks.
+
+This is a classic demonstration of **data drift**, where the patterns in the "future" data were fundamentally different from the historical data the model was trained on. This phase successfully highlighted that a high test score doesn't always guarantee real-world performance.
+
+### Phase 2: Building a Robust, Generalized Model
+To address the data drift, a new, more resilient model was built.
+
+* **Strategy:** All data from all five days (Monday - Friday) was merged and shuffled to create a comprehensive dataset. A standard 80/20 train-test split was performed on this complete dataset.
+* **Result:** By training on a much wider variety of traffic patterns, the new models learned to generalize far more effectively.
+
+---
+## Final Model Performance
+
+The best-performing model from the robust training phase was **Random Forest**, achieving the following outstanding results on the final, unseen test set:
+
+| Model | Accuracy | Precision (Attack) | Recall (Attack) | F1-Score (Attack) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Random Forest** | **98.7%** | **95.4%** | **98.1%** | **96.7%** |
+| XGBoost | 98.6% | 95.4% | 97.8% | 96.6% |
+| LightGBM | 98.5% | 95.1% | 97.6% | 96.3% |
 
 ---
 
-## 📊 Dataset Overview
+## Project Structure
 
-* **Name:** CIC-IDS2017
-* **Source:** [Canadian Institute for Cybersecurity](https://www.unb.ca/cic/datasets/ids-2017.html)
-* **Format:** Flow-based `.csv` files
-* **Labels:** Multiple attack types grouped into:
-
-  * 🔵 Benign
-  * 🔴 Malicious
-
-### 📅 Getting the Data
-
-Download `GeneratedLabelledFlows.zip` from the link above and extract into:
-
-```
-data/GeneratedLabelledFlows/TrafficLabelling/
-```
-
-Ensure that the path contains 8 CSV files, one per day.
+* `/data/`: Contains the raw CIC-IDS-2017 dataset and the final processed datasets.
+* `/models/`: Stores the final, trained model objects (`.pkl` files).
+* `/src/`: Contains the Jupyter Notebooks for each stage:
+    * `preprocess.ipynb`: Handles all data loading, cleaning, feature selection, and splitting.
+    * `train.ipynb`: Trains multiple classification models using `Pipelines` to bundle preprocessing where needed.
+    * `evaluate.ipynb`: Evaluates all trained models on the test set and generates performance metrics and visualizations.
+    * `inference.ipynb`: A simple script demonstrating how to use the final, best model to make a prediction on a new piece of data.
 
 ---
 
-## ⚙️ Setup Instructions
+## How to Use
 
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 💡 Preprocessing Steps (preprocess.ipynb)
-
-1. **Load and Merge** all CSVs into one DataFrame
-2. **Drop Non-informative Features** like IP addresses, ports, etc.
-3. **Handle Non-Numeric Data:**
-
-   * Drop string-type columns
-   * Replace inf values, then drop NaNs
-4. **Feature Selection:**
-
-   * Remove features with correlation to label between -0.1 and 0.1
-5. **Export Processed Data** for training
-
----
-
-## 🎓 Model Training (train.ipynb)
-
-### Splitting
-
-* Split processed dataset into **X, y**, and then into **Train/Test** sets.
-
-### Trained Models
-
-* Logistic Regression
-* Random Forest
-* XGBoost
-* LightGBM
-* MLP Classifier
-* Linear SVM
-
-### Saving
-
-* All models are saved using `joblib` in `/models`
-* Test set also saved for reuse
-
----
-
-## 🤮 Evaluation (evaluate.ipynb)
-
-Models were evaluated using **Accuracy**, **Precision**, **Recall**, and **F1 Score**.
-
-| Model               | Accuracy | Precision | Recall | F1 Score |
-| ------------------- | -------- | --------- | ------ | -------- |
-| 🥇 Random Forest    | 0.9985   | 0.9962    | 0.9959 | 0.9961   |
-| 🥈 XGBoost          | 0.9984   | 0.9960    | 0.9959 | 0.9960   |
-| 🥉 LightGBM         | 0.9977   | 0.9950    | 0.9932 | 0.9941   |
-| MLP Classifier      | 0.9776   | 0.9134    | 0.9790 | 0.9451   |
-| Logistic Regression | 0.9254   | 0.8213    | 0.7935 | 0.8072   |
-| Linear SVM          | 0.9199   | 0.8391    | 0.7337 | 0.7829   |
-
-> ✅ **Random Forest** and **XGBoost** demonstrated the best generalization.
-
----
-
-## 🔍 Inference (inference.ipynb)
-
-* Load best-performing model from `/models`
-* Load or input unseen test data
-* Predict and display outcome (benign/malicious)
-
----
-
-## 📊 Visualizations
-
-* Correlation heatmap
-* Feature distribution
-* Accuracy comparison bar chart
-* Confusion matrix for selected models
-
----
-
-## 🔀 Future Work
-
-* ⏳ Real-time streaming inference
-* 🧠 Multi-class classification (attack categories)
-* 🔄 Feature selection via PCA / mutual info
-* ⚙️ Hyperparameter tuning with GridSearchCV
-* ☁️ Integration with dashboards (Grafana, Kibana, etc.)
-
----
-
-## 🛠️ Tech Stack
-
-* Python 3.x
-* Jupyter Notebooks
-* Scikit-learn, XGBoost, LightGBM
-* Pandas, NumPy
-* Matplotlib, Seaborn
-
----
-
-## 📜 License
-
-This project is for **educational and research** use only.
-Dataset by the **Canadian Institute for Cybersecurity**.
-
----
-
-## 🤝 Author
-
-**Ahmed Elghazouly**
-[GitHub Profile](https://github.com/Ahmed-Elghazouly)
-
----
-
-## 🌟 Contributions
-
-Pull requests are welcome! Fork this repo and feel free to suggest improvements or submit fixes.
+1.  Clone this repository.
+2.  Install the required packages: `pip install -r requirements.txt`
+3.  Run the Jupyter Notebooks in the `/src/` folder in the following order: `preprocess`, `train`, `evaluate`, and finally `inference`.
